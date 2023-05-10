@@ -1,15 +1,17 @@
-const { db } = require('./db')
+const { createDbConnection } = require('./db')
+
+const db = createDbConnection()
 
 async function insertStore(location) {
     const sql = `INSERT INTO stores(location) VALUES (?)`
-    await db.run(sql, [location], (err) => {
+    db.run(sql, [location], (err) => {
         if (err) return console.error(err.message)
     })
 }
 
 async function insertEmployee(store_ID, name) {
     const sql = `INSERT INTO employees(store_ID, name) VALUES (?, ?)`
-    await db.run(sql, [store_ID, name], (err) => {
+    db.run(sql, [store_ID, name], (err) => {
         if (err) return console.error(err.message)
     })
 }
@@ -22,32 +24,44 @@ async function insertBook(title, author, price) {
 }
 
 async function insertInventory(store_ID, book_ID, quantity) {
-    const sql = `INSERT INTO inventory(store_ID, name) VALUES (?, ?, ?)`
-    await db.run(sql, [store_ID, book_ID, quantity], (err) => {
+    const sql = `INSERT INTO inventory(store_ID, book_ID, quantity) VALUES (?, ?, ?)`
+    db.run(sql, [store_ID, book_ID, quantity], (err) => {
         if (err) return console.error(err.message)
     })
 } 
 
-async function query(table, attr, value) {
-    let sql = `SELECT * FROM ?`
-    const arr = [table]
+function query(table, attr, value) {
+    let sql = `SELECT * FROM ${table.toString()}`
+    const arr = []
     if (attr && value) {
-        sql += ` WHERE ? = ?`
-        arr.push(attr)
+        sql += ` WHERE ${attr.toString()} = ?`
         arr.push(value)
     }
-    await db.all(sql, arr, (err, rows) => {
-        if (err) return console.error(err.message)
-        return rows
+    console.log(sql, arr)
+    return new Promise((resolve, reject) => {
+        db.all(sql, arr, (error, rows) => {
+            if (error) {
+                console.log(error)
+                reject(error.message)
+            } else {
+                resolve(rows)
+            }
+        })
     })
+    
 }
 
 async function queryInventory(store_ID, book_ID) {
     let sql = `SELECT * FROM inventory WHERE store_ID = ? AND book_ID = ? `
     const arr = [store_ID, book_ID]
-    await db.all(sql, arr, (err, rows) => {
-        if (err) return console.error(err.message)
-        return rows
+    return new Promise((resolve, reject) => {
+        db.all(sql, arr, (err, rows) => {
+            if (err) {
+                reject(err.message)
+            } else {
+                resolve(rows)
+            }
+        })
     })
 }
 
@@ -55,20 +69,21 @@ async function update(table, attr, value, id) {
     let sql = `UPDATE ? SET ? = ? WHERE ID = ?`
     const arr = [table, attr, value, id]
     
-    await db.run(sql, arr, (err,) => {
-        if (err) return console.error(err.message)
-        return 
+    db.run(sql, arr, (err,) => {
+        if (err) {
+            return console.error(err.message)
+        } 
     })
 }
 
-async function remove() {
+async function remove(table, id) {
     let sql = `DELETE FROM ? WHERE ID = ?`
     const arr = [table, id]
     
-    await db.run(sql, arr, (err,) => {
+    db.run(sql, arr, (err,) => {
         if (err) return console.error(err.message)
         return 
     }) 
 }
 
-module.exports = { insertStore, insertBook, insertEmployee, insertInventory, query, update, remove }
+module.exports = { insertStore, insertBook, insertEmployee, insertInventory, queryInventory, query, update, remove }

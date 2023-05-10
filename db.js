@@ -7,6 +7,7 @@ function createDbConnection() {
 		if (error) return console.log(error.message)
 		createTables(db)
 	})
+    return db
 }
 
 function createTables(db) {
@@ -15,14 +16,15 @@ function createTables(db) {
         CREATE TABLE IF NOT EXISTS stores (
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
             location varchar(100) NOT NULL
-        )
+        );
         `,
         `
         CREATE TABLE IF NOT EXISTS employees (
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
             store_ID INTEGER NOT NULL,
-            name varchar(100) NOT NULL
-        )
+            name varchar(100) NOT NULL,
+            FOREIGN KEY (store_ID) REFERENCES stores(store_ID)
+        );
         `,
         `
         CREATE TABLE IF NOT EXISTS books (
@@ -30,14 +32,16 @@ function createTables(db) {
             title varchar(100) NOT NULL,
             author varchar(100) NOT NULL,
             price INTEGER NOT NULL
-        )
+        );
         `,
         `
         CREATE TABLE IF NOT EXISTS inventory (
             store_ID INTEGER NOT NULL,
             book_ID INTEGER NOT NULL,
-            quantity INTEGER NOT NULL
-        )
+            quantity INTEGER NOT NULL,
+            FOREIGN KEY (store_ID) REFERENCES stores(ID),
+            FOREIGN KEY (book_ID) REFERENCES books(ID)
+        );
         `
     ]
 
@@ -46,4 +50,4 @@ function createTables(db) {
 
 
 
-module.exports =  { db: createDbConnection() }
+module.exports =  { createDbConnection }

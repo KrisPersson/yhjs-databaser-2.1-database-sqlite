@@ -9,8 +9,18 @@ async function checkInsertStore(request, response, next) {
     if (!validation.error) {
         next()
     } else {
-        response.status(400).json({ success: false, message: error.message })
+        response.status(400).json({ success: false, message: validation.error.message })
     }
 }
 
-module.exports = { checkInsertStore }
+async function checkSearchStores(request, response, next) {
+    const input = { location: request.headers.location }
+    const validation = insertStoreBodySchema.validate(input);
+    if (!validation.error) {
+        next()
+    } else {
+        response.status(400).json({ success: false, message: validation.error.message })
+    }
+}
+
+module.exports = { checkInsertStore, checkSearchStores }

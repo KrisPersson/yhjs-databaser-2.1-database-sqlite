@@ -1,4 +1,4 @@
-const { insertStore } = require('../model')
+const { insertStore, query } = require('../model')
 
 
 async function addNewStoreCtrl(request, response) {
@@ -11,5 +11,15 @@ async function addNewStoreCtrl(request, response) {
     }
 }
 
+async function searchStoresCtrl(request, response) {
+    try {
+        const { location } = request.headers
+        const searchResult = await query("stores", "location", location)
+        response.json({ success: true, searchResult })
+    } catch (error) {
+        response.json({ success: false, message: error.message })
+    }
+}
 
-module.exports = { addNewStoreCtrl }
+
+module.exports = { addNewStoreCtrl, searchStoresCtrl }

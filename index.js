@@ -10,7 +10,6 @@ const { storeRouter } = require('./routes/stores.route')
 const { employeesRouter } = require('./routes/employees.route')
 const { inventoryRouter } = require('./routes/inventory.route')
 
-createDbConnection()
 
 app.use('/api/books', booksRouter)
 app.use('/api/store', storeRouter)
@@ -19,5 +18,6 @@ app.use('/api/inventory', inventoryRouter)
 
 
 app.listen(PORT, () => {
+    createDbConnection()
     console.log('Starting server at port ' + PORT)
 })

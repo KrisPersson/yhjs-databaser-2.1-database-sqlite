@@ -10,7 +10,7 @@ async function checkInsertEmployee(request, response, next) {
     if (!validation.error) {
         next()
     } else {
-        response.status(400).json({ success: false, message: error.message })
+        response.status(400).json({ success: false, message: validation.error.message })
     }
 }
 

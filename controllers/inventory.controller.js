@@ -1,4 +1,4 @@
-const { insertInventory } = require('../model')
+const { insertInventory, queryInventory } = require('../model')
 
 
 async function addNewInventoryCtrl(request, response) {
@@ -14,7 +14,7 @@ async function addNewInventoryCtrl(request, response) {
 async function searchInventoryCtrl(request, response) {
     try {
         const { store_ID, book_ID } = request.headers
-        const searchResult = await query("inventory", attr, value)
+        const searchResult = await queryInventory(store_ID, book_ID)
         response.json({ success: true, searchResult })
     } catch (error) {
         response.json({ success: false, message: error.message })
@@ -22,4 +22,4 @@ async function searchInventoryCtrl(request, response) {
 }
 
 
-module.exports = { addNewInventoryCtrl }
+module.exports = { addNewInventoryCtrl, searchInventoryCtrl }
