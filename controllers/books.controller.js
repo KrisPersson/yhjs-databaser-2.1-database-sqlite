@@ -1,4 +1,4 @@
-const { insertBook, query } = require('../model')
+const { insertBook, query, remove, update } = require('../model')
 
 
 async function addNewBookCtrl(request, response) {
@@ -21,5 +21,25 @@ async function searchBooksCtrl(request, response) {
     }
 }
 
+async function removeBookCtrl(request, response) {
+    try {
+        const { ID } = request.body
+        await remove("books", ID)
+        response.json({ success: true, message: 'Book successfully deleted!' })
+    } catch (error) {
+        response.json({ success: false, message: error.message })
+    }
+}
 
-module.exports = { addNewBookCtrl, searchBooksCtrl }
+async function editBookCtrl(request, response) {
+    try {
+        const { ID, price } = request.body
+        await update("books", "price", price, ID)
+        response.json({ success: true, message: 'Book successfully edited!' })
+    } catch (error) {
+        response.json({ success: false, message: error.message })
+    }
+}
+
+
+module.exports = { addNewBookCtrl, searchBooksCtrl, removeBookCtrl, editBookCtrl }

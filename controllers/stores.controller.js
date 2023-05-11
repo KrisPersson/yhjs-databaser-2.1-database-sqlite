@@ -1,4 +1,4 @@
-const { insertStore, query } = require('../model')
+const { insertStore, query, remove, update } = require('../model')
 
 
 async function addNewStoreCtrl(request, response) {
@@ -21,5 +21,24 @@ async function searchStoresCtrl(request, response) {
     }
 }
 
+async function removeStoreCtrl(request, response) {
+    try {
+        const { ID } = request.body
+        await remove("stores", ID)
+        response.json({ success: true, message: 'Store successfully deleted!' })
+    } catch (error) {
+        response.json({ success: false, message: error.message })
+    }
+}
 
-module.exports = { addNewStoreCtrl, searchStoresCtrl }
+async function editStoreCtrl(request, response) {
+    try {
+        const { ID, location } = request.body
+        await update("stores", "location", location, ID)
+        response.json({ success: true, message: 'Store successfully edited!' })
+    } catch (error) {
+        response.json({ success: false, message: error.message })
+    }
+}
+
+module.exports = { addNewStoreCtrl, searchStoresCtrl, removeStoreCtrl, editStoreCtrl }

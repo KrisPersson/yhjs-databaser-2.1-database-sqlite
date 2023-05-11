@@ -33,15 +33,14 @@ async function insertInventory(store_ID, book_ID, quantity) {
 function query(table, attr, value) {
     let sql = `SELECT * FROM ${table.toString()}`
     const arr = []
+    
     if (attr && value) {
         sql += ` WHERE ${attr.toString()} = ?`
         arr.push(value)
     }
-    console.log(sql, arr)
     return new Promise((resolve, reject) => {
         db.all(sql, arr, (error, rows) => {
             if (error) {
-                console.log(error)
                 reject(error.message)
             } else {
                 resolve(rows)
@@ -52,8 +51,20 @@ function query(table, attr, value) {
 }
 
 async function queryInventory(store_ID, book_ID) {
-    let sql = `SELECT * FROM inventory WHERE store_ID = ? AND book_ID = ? `
-    const arr = [store_ID, book_ID]
+    let sql = `SELECT * FROM inventory`
+    const arr = []
+
+    if (store_ID && book_ID) {
+        sql +=  ` WHERE store_ID = ? AND book_ID = ?`
+        arr.push(store_ID)
+        arr.push(book_ID)
+    } else if (!book_ID && store_ID) {
+        sql += ` WHERE store_ID = ?`
+        arr.push(store_ID)
+    } else if (!store_ID && book_ID) {
+        sql += ` WHERE book_ID = ?`
+        arr.push(book_ID)
+    }
     return new Promise((resolve, reject) => {
         db.all(sql, arr, (err, rows) => {
             if (err) {
@@ -66,24 +77,47 @@ async function queryInventory(store_ID, book_ID) {
 }
 
 async function update(table, attr, value, id) {
-    let sql = `UPDATE ? SET ? = ? WHERE ID = ?`
-    const arr = [table, attr, value, id]
+    let sql = `UPDATE ${table.toString()} SET ${attr.toString()} = ? WHERE ID = ?`
+    const arr = [value, id]
     
-    db.run(sql, arr, (err,) => {
-        if (err) {
-            return console.error(err.message)
+    db.run(sql, arr, (error) => {
+        if (error) {
+            throw new Error('Update failed: ' + error.message)
+        } 
+    })
+}
+
+async function updateInventory(store_ID, book_ID, quantity) {
+    let sql = `UPDATE inventory SET quantity = ? WHERE store_ID = ? AND book_ID = ?`
+    const arr = [quantity, store_ID, book_ID]
+    
+    db.run(sql, arr, (error) => {
+        if (error) {
+            throw new Error('Update failed: ' + error.message)
         } 
     })
 }
 
 async function remove(table, id) {
-    let sql = `DELETE FROM ? WHERE ID = ?`
-    const arr = [table, id]
+    let sql = `DELETE FROM ${table.toString()} WHERE ID = ?`
+    const arr = [id]
     
-    db.run(sql, arr, (err,) => {
-        if (err) return console.error(err.message)
-        return 
+    db.run(sql, arr, (error) => {
+        if (error) {
+            throw new Error('Remove failed: ' + error.message)
+        }
     }) 
 }
 
-module.exports = { insertStore, insertBook, insertEmployee, insertInventory, queryInventory, query, update, remove }
+async function removeInventory(store_ID, book_ID) {
+    let sql = `DELETE FROM inventory WHERE store_ID = ? AND book_ID = ?`
+    const arr = [store_ID, book_ID]
+    
+    db.run(sql, arr, (error) => {
+        if (error) {
+            throw new Error('Remove failed: ' + error.message)
+        }
+    }) 
+}
+
+module.exports = { insertStore, insertBook, insertEmployee, insertInventory, queryInventory, query, update, remove, updateInventory, removeInventory }
